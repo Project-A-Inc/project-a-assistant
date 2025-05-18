@@ -1,0 +1,24 @@
+
+[tool.poetry]
+name = "project-a-assistant"
+version = "0.1.0"
+description = "Conversational assistant for B2B sales teams"
+authors = ["Generated <assistant@example.com>"]
+packages = [{ include = "project_a_assistant", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+langgraph = "^0.4.5"
+fastapi = "^0.111"
+uvicorn = { extras = ["standard"], version = "^0.29" }
+duckduckgo-search = "^5.3"
+httpx = "^0.27"
+python-dotenv = "^1.0"
+pydantic = "^2.7"
+tiktoken = { version = "^0.6", optional = true }
+pydantic-settings = "^2.9.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2"
+ruff = "^0.5.3"
+pytest-benchmark = { version = "^4.0", optional = true }

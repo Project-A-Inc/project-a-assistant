@@ -1,0 +1,23 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-a-assistant
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: project-a-assistant
+  template:
+    metadata:
+      labels:
+        app: project-a-assistant
+    spec:
+      containers:
+        - name: api
+          image: your-registry/project-a-assistant:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: project-a-assistant-secrets
