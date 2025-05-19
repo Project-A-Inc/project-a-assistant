@@ -20,6 +20,7 @@ python-multipart = "^0.0.20"
 langchain = "^0.3.25"
 tiktoken = "^0.9.0"
 langchain-openai = "^0.3.17"
+langchain-community = "^0.3.24"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2"

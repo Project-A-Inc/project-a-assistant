@@ -42,3 +42,21 @@ async def test_graph_with_icebreaker(monkeypatch):
 
     assert "answer" in result
     assert result["is_allowed"] is True
+
+
+@pytest.mark.asyncio
+async def test_graph_with_web_search(monkeypatch):
+
+    # Patch chat only where it is used
+    # monkeypatch.setattr(gatekeeper_module, "chat", mock_chat)
+
+    compiled_graph = build_graph().compile()
+
+    state = {
+        "user_message": HumanMessage(content="Latest funding news for Acme Corp.")
+    }
+
+    result = await compiled_graph.ainvoke(state)
+
+    assert "answer" in result
+    assert result["is_allowed"] is True

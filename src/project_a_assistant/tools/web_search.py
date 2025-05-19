@@ -1,7 +1,9 @@
+from langchain_community.tools.tavily_search import TavilySearchResults
+from asyncio import to_thread
 
-from duckduckgo_search import DDGS
-from typing import List, Dict
-def search(query: str, max_results: int = 5) -> List[Dict[str,str]]:
-    with DDGS() as ddgs:
-        return [{"title":r["title"],"href":r["href"],"snippet":r["body"]}
-                for r in ddgs.text(query, safesearch="Moderate", max_results=max_results)]
+# Instantiate once
+tavily_tool = TavilySearchResults()
+
+# Async wrapper
+async def search(query: str) -> str:
+    return await to_thread(tavily_tool.run, query)

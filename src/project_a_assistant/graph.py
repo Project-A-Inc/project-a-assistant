@@ -98,16 +98,17 @@ async def collect_tools(state: AgentState) -> AgentState:
         return {"tool_outputs": {}}
     
     async def _call(name: str):
-        last_msg = state.user_message
+        user_message = state["user_message"]
         tool = _TOOL_MAP[name]
         if name == "web_search":
-            return tool.func(last_msg.content)
+            return await tool.func(user_message.content)
         if name == "mcp_query":
-            return tool.func({"tool": "crm.search", "query": last_msg.content})
+            return await tool.func({"tool": "crm.search", "query": user_message.content})
 
-    outs = await asyncio.gather(*[_call(t) for t in state.tools_to_call]) if state.tools_to_call else []
-    state.tool_outputs = dict(zip(state.tools_to_call, outs))
-    return state
+    outs = await asyncio.gather(*[_call(t) for t in tools_to_call])
+    tool_outputs = dict(zip(tools_to_call, outs))
+
+    return {"tool_outputs": tool_outputs}
 
 
 # Node: Generate LLM answer
@@ -116,7 +117,7 @@ async def llm_answer(state: dict) -> dict:
     
     # Generate context if tool outputs exist
     context_json = json.dumps(tool_outputs, ensure_ascii=False, indent=2) if tool_outputs else ""
-    context = f"Tool results:\n{truncate(context_json)}" if context_json else ""
+    context = f"Tool results:\n{context_json}" if context_json else ""
 
     user_msg = state["user_message"]
     messages = [
