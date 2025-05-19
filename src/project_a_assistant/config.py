@@ -14,6 +14,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         populate_by_name=True,
         case_sensitive=False,
+        extra="ignore"
     )
 
     # FastMCP (optional)
