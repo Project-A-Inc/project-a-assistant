@@ -1,4 +1,4 @@
-
+from langchain_core.messages import HumanMessage, AIMessage
 import pytest
 import json
 
@@ -15,7 +15,7 @@ CASES = [
 @pytest.mark.parametrize("msg, fake_json, expected", CASES)
 async def test_gatekeeper(monkeypatch, msg, fake_json, expected):
     async def fake_chat(*_, **__):
-        return json.dumps(fake_json)
+        return AIMessage(content=json.dumps(fake_json))
     monkeypatch.setattr(g, "chat", fake_chat)
-    result = await g.is_message_allowed(msg)
+    result = await g.is_message_allowed(HumanMessage(content=msg))
     assert result.allowed == expected

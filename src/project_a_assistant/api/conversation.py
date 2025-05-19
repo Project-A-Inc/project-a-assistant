@@ -40,9 +40,9 @@ async def chat_endpoint(req: ChatRequest):
         # 2) async invoke
         result_state = await compiled_graph.ainvoke(state)
 
-        last = result_state['response']
+        answer = result_state['answer']
         
-        return ChatResponse(response=last)
+        return ChatResponse(response=answer)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

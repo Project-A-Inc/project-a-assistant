@@ -15,7 +15,7 @@ from .llm_client import chat
 
 class AgentState(TypedDict):
     user_message: HumanMessage
-    response: List[AIMessage]
+    answer: List[AIMessage]
     tools_to_call: List[str]
     tool_outputs: Dict[Any, str | None]
     is_allowed: bool
@@ -56,7 +56,7 @@ async def validate(state: AgentState) -> AgentState:
     # If it’s not allowed, append an assistant reply and return
     if not result.allowed:
         return {
-            "response": [AIMessage(content=result.explanation)],
+            "answer": [AIMessage(content=result.explanation)],
             "is_allowed": False
         }
     
@@ -93,6 +93,10 @@ async def route_tools(state: AgentState) -> AgentState:
 
 # Node: Call tools and collect outputs
 async def collect_tools(state: AgentState) -> AgentState:
+    tools_to_call = state.get("tools_to_call", [])
+    if not tools_to_call:
+        return {"tool_outputs": {}}
+    
     async def _call(name: str):
         last_msg = state.user_message
         tool = _TOOL_MAP[name]
@@ -107,30 +111,38 @@ async def collect_tools(state: AgentState) -> AgentState:
 
 
 # Node: Generate LLM answer
-async def llm_answer(state: AgentState) -> AgentState:
-    context_json = json.dumps(state.tool_outputs, ensure_ascii=False, indent=2) if state.tool_outputs else ""
-    context = f"Tool results:\n{truncate(context_json)}" if context_json else ""
-    last_msg = state.user_message
-    messages = [
-        SystemMessage(content=SYSTEM_PROMPT),
-        SystemMessage(content=context),
-        HumanMessage(content=last_msg)
-    ]
-    answer = await chat(messages)
-    state.output_messages.append(
-        AIMessage(content=answer)
-    )
+async def llm_answer(state: dict) -> dict:
+    tool_outputs = state.get("tool_outputs", {})
     
-    return state
+    # Generate context if tool outputs exist
+    context_json = json.dumps(tool_outputs, ensure_ascii=False, indent=2) if tool_outputs else ""
+    context = f"Tool results:\n{truncate(context_json)}" if context_json else ""
+
+    user_msg = state["user_message"]
+    messages = [
+        SystemMessage(content=SYSTEM_PROMPT)
+    ]
+
+    if context:
+        messages.append(SystemMessage(content=context))
+
+    messages.append(user_msg)
+
+    answer = await chat(messages)
+
+    return { "answer": [answer]}
 
 
 # Node: Append next steps
 def next_steps(state: AgentState) -> AgentState:
     addon = "\n\n**Next steps:** _Visualize metrics_, _Export CSV_, _Schedule follow-up_."
-    state.output_messages.append(
+
+    answer = state["answer"]
+
+    answer.append(
         AIMessage(content=addon)
     )
-    return state
+    return { "answer": answer}
 
 
 # Build LangGraph

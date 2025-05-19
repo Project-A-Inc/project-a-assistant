@@ -1,13 +1,13 @@
 import pytest
 from project_a_assistant.graph import build_graph
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, AIMessage
 import project_a_assistant.validators.gatekeeper as gatekeeper_module
 
 @pytest.mark.asyncio
 async def test_graph_with_mocked_chat(monkeypatch):
     # Mock chat function used inside gatekeeper.is_message_allowed()
     async def mock_chat(messages, temperature=0.0):
-        return '{"allowed": false, "reason": "off_topic", "explanation": "This is off-topic."}'
+        return AIMessage(content='{"allowed": false, "reason": "off_topic", "explanation": "This is off-topic."}')
 
     # Patch chat only where it is used
     monkeypatch.setattr(gatekeeper_module, "chat", mock_chat)
@@ -20,14 +20,14 @@ async def test_graph_with_mocked_chat(monkeypatch):
 
     result = await compiled_graph.ainvoke(state)
 
-    assert "response" in result
+    assert "answer" in result
     assert result["is_allowed"] is False
 
 @pytest.mark.asyncio
 async def test_graph_with_icebreaker(monkeypatch):
     # Mock chat function used inside gatekeeper.is_message_allowed()
     async def mock_chat(messages, temperature=0.0):
-        return '{"allowed": false, "reason": "off_topic", "explanation": "This is off-topic."}'
+        return AIMessage(content='{"allowed": false, "reason": "off_topic", "explanation": "This is off-topic."}')
 
     # Patch chat only where it is used
     # monkeypatch.setattr(gatekeeper_module, "chat", mock_chat)
@@ -40,5 +40,5 @@ async def test_graph_with_icebreaker(monkeypatch):
 
     result = await compiled_graph.ainvoke(state)
 
-    assert "response" in result
+    assert "answer" in result
     assert result["is_allowed"] is True

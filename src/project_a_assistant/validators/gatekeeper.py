@@ -24,29 +24,21 @@ _JSON_REGEX = re.compile(r'\{(?:[^{}"]|"(?:\\.|[^"\\])*"|\{(?:[^{}"]|"(?:\\.|[^"
 async def is_message_allowed(msg: HumanMessage) -> GatekeeperResult:
     messages: List[BaseMessage] = [
         SystemMessage(content=_SYSTEM_PROMPT),
-        HumanMessage(content=msg)
+        msg
     ]
-    try:
-        result = await chat(messages, temperature=0)
+    
+    result = await chat(messages, temperature=0)
 
-        # Extract the first valid JSON object from the response using regex
-        match = _JSON_REGEX.search(result.content)
-        if not match:
-            raise ValueError("No valid JSON object found in response.")
+    # Extract the first valid JSON object from the response using regex
+    match = _JSON_REGEX.search(result.content)
+    if not match:
+        raise ValueError("No valid JSON object found in response.")
 
-        json_str = match.group(0)
-        result_json = json.loads(json_str)
+    json_str = match.group(0)
+    result_json = json.loads(json_str)
 
-        return GatekeeperResult(
-            allowed=bool(result_json.get("allowed", False)),
-            reason=result_json.get("reason", "unknown"),
-            explanation=result_json.get("explanation", "")
-        )
-
-    except Exception as e:
-        # Return a default response with error details
-        return GatekeeperResult(
-            allowed=False,
-            reason="error",
-            explanation=f"Failed to process message: {str(e)}"
-        )
+    return GatekeeperResult(
+        allowed=bool(result_json.get("allowed", False)),
+        reason=result_json.get("reason", "unknown"),
+        explanation=result_json.get("explanation", "")
+    )
