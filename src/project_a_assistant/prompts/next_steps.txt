@@ -1,0 +1,4 @@
+Here is the AI assistant's answer:
+{answer}
+
+Based on this, suggest 1-3 possible next steps for the user.

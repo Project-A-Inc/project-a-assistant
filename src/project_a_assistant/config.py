@@ -18,9 +18,10 @@ class Settings(BaseSettings):
     )
 
     # FastMCP (optional)
-    mcp_base_url: AnyHttpUrl | None = Field(None, alias="MCP_BASE_URL")
+    mcp_base_url: str | None = Field(None, alias="MCP_BASE_URL")
     mcp_api_key: str        | None = Field(None, alias="MCP_API_KEY")
-    default_user_id: str           = Field("oieremchuk", alias="DEFAULT_USER_ID")
+    mcp_api_header: str        | None = Field(None, alias="MCP_API_HEADER")
+    
 
     # Azure OpenAI
     azure_endpoint: AnyHttpUrl = Field(..., alias="AZURE_OPENAI_ENDPOINT")
@@ -31,6 +32,16 @@ class Settings(BaseSettings):
     llm_temperature: float = Field(0.2, alias="LLM_TEMPERATURE")
     llm_max_tokens:    int = Field(1024, alias="LLM_MAX_TOKENS")
     llm_top_p:        float = Field(1.0, alias="LLM_TOP_P")
+
+    # Storage params
+
+    azure_storage_connection_string: str = Field(..., alias="AZURE_STORAGE_CONNECTION_STRING")
+    blob_container: str             = Field(..., alias="BLOB_CONTAINER")
+    
+    # Org params
+    default_user_id: str             = Field(..., alias="DEFAULT_USER_ID")
+    default_org_id: str      = Field(..., alias="DEFAULT_ORG_ID")
+
 
     @field_validator("mcp_base_url", "mcp_api_key", mode="before")
     def _empty_str_to_none(cls, v):

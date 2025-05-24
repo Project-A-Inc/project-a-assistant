@@ -7,7 +7,7 @@ from langchain_core.messages import (
 )
 from typing import List
 from dataclasses import dataclass
-from ..llm_client import chat
+from ..llm.llm_client import chat
 from ..prompts import load_prompt
 
 _SYSTEM_PROMPT = load_prompt("gatekeeper")
